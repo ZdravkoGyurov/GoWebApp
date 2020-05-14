@@ -6,8 +6,8 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/ZdravkoGyurov/GoWebApp/db"
-	"github.com/ZdravkoGyurov/GoWebApp/handlers"
+	"github.com/ZdravkoGyurov/go-web-app/db"
+	"github.com/ZdravkoGyurov/go-web-app/handlers"
 )
 
 func handleRoutes(collection *mongo.Collection) {

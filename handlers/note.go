@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/ZdravkoGyurov/GoWebApp/db/models"
+	"github.com/ZdravkoGyurov/go-web-app/db/models"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
