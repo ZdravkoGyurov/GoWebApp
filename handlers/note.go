@@ -7,15 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	models "../db/models"
-
+	"github.com/ZdravkoGyurov/GoWebApp/db/models"
 	"go.mongodb.org/mongo-driver/mongo"
 )
-
-// DBCollection encapsulates mongoDB collection
-type DBCollection struct {
-	Collection *mongo.Collection
-}
 
 func parseTitle(url *url.URL) string {
 	titles, ok := url.Query()["title"]
@@ -28,10 +22,10 @@ func parseTitle(url *url.URL) string {
 	return titles[0]
 }
 
-func getNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
+func getNote(collection *mongo.Collection, w http.ResponseWriter, r *http.Request) {
 	title := parseTitle(r.URL)
 
-	if note, err := models.FindNoteByTitle(dbc.Collection, title); err != nil {
+	if note, err := models.FindNoteByTitle(collection, title); err != nil {
 		fmt.Fprintln(w, err)
 		fmt.Println(err)
 	} else {
@@ -39,7 +33,7 @@ func getNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func postNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
+func postNote(collection *mongo.Collection, w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "Error while parsing body: %v", err)
 		return
@@ -49,7 +43,7 @@ func postNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	body := r.Form.Get("body")
 	newNote := models.NewNote(title, body, time.Now())
 
-	if err := models.InsertNote(dbc.Collection, newNote); err != nil {
+	if err := models.InsertNote(collection, newNote); err != nil {
 		fmt.Fprintln(w, err)
 		fmt.Println(err)
 	} else {
@@ -57,7 +51,7 @@ func postNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func putNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
+func putNote(collection *mongo.Collection, w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "Error while parsing body: %v", err)
@@ -69,7 +63,7 @@ func putNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	body := r.Form.Get("body")
 	newNote := models.NewNote(newTitle, body, time.Now())
 
-	if err := models.UpdateNoteByTitle(dbc.Collection, title, newNote); err != nil {
+	if err := models.UpdateNoteByTitle(collection, title, newNote); err != nil {
 		fmt.Fprintln(w, err, title)
 		fmt.Println(err, title)
 	} else {
@@ -77,10 +71,10 @@ func putNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
+func deleteNote(collection *mongo.Collection, w http.ResponseWriter, r *http.Request) {
 	title := parseTitle(r.URL)
 
-	if err := models.DeleteNoteByTitle(dbc.Collection, title); err != nil {
+	if err := models.DeleteNoteByTitle(collection, title); err != nil {
 		fmt.Fprintln(w, err, title)
 		fmt.Println(err, title)
 	} else {
@@ -88,8 +82,8 @@ func deleteNote(dbc DBCollection, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getNotes(dbc DBCollection, w http.ResponseWriter) {
-	if notes, err := models.FindNotes(dbc.Collection); err != nil {
+func getNotes(collection *mongo.Collection, w http.ResponseWriter) {
+	if notes, err := models.FindNotes(collection); err != nil {
 		fmt.Fprintln(w, err)
 		fmt.Println(err)
 	} else {
@@ -98,37 +92,41 @@ func getNotes(dbc DBCollection, w http.ResponseWriter) {
 }
 
 // HandleNote handles GET, POST, PUT and DELETE requests to /note
-func (dbc DBCollection) HandleNote(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/note" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
+func HandleNote(collection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/note" {
+			http.Error(w, "404 not found.", http.StatusNotFound)
+			return
+		}
 
-	switch r.Method {
-	case "GET":
-		getNote(dbc, w, r)
-	case "POST":
-		postNote(dbc, w, r)
-	case "PUT":
-		putNote(dbc, w, r)
-	case "DELETE":
-		deleteNote(dbc, w, r)
-	default:
-		fmt.Fprintf(w, "Sorry, only GET, POST, PUT, DELETE methods are supported.")
+		switch r.Method {
+		case "GET":
+			getNote(collection, w, r)
+		case "POST":
+			postNote(collection, w, r)
+		case "PUT":
+			putNote(collection, w, r)
+		case "DELETE":
+			deleteNote(collection, w, r)
+		default:
+			fmt.Fprintf(w, "Sorry, only GET, POST, PUT, DELETE methods are supported.")
+		}
 	}
 }
 
 // HandleNotes handles GET request to /notes
-func (dbc DBCollection) HandleNotes(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/notes" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
-		return
-	}
+func HandleNotes(collection *mongo.Collection) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/notes" {
+			http.Error(w, "404 not found.", http.StatusNotFound)
+			return
+		}
 
-	switch r.Method {
-	case "GET":
-		getNotes(dbc, w)
-	default:
-		fmt.Fprintf(w, "Sorry, only GET method is supported.")
+		switch r.Method {
+		case "GET":
+			getNotes(collection, w)
+		default:
+			fmt.Fprintf(w, "Sorry, only GET method is supported.")
+		}
 	}
 }

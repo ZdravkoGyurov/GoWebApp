@@ -6,14 +6,13 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
-	db "./db"
-	handlers "./handlers"
+	"github.com/ZdravkoGyurov/GoWebApp/db"
+	"github.com/ZdravkoGyurov/GoWebApp/handlers"
 )
 
 func handleRoutes(collection *mongo.Collection) {
-	dbc := handlers.DBCollection{collection}
-	http.HandleFunc("/note", dbc.HandleNote)
-	http.HandleFunc("/notes", dbc.HandleNotes)
+	http.HandleFunc("/note", handlers.HandleNote(collection))
+	http.HandleFunc("/notes", handlers.HandleNotes(collection))
 }
 
 func main() {
