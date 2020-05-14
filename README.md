@@ -1,2 +1,2 @@
 # GoWebApp
-golang web app with docker and kubernetes
+Golang web app with MongoDB, Docker and Kubernetes
