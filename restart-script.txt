@@ -1,0 +1,12 @@
+# redeploys mongodb and creates database, user, password - 'go-web-app', zdravko, pass
+helm uninstall my-release-mongodb &&
+helm install my-release-mongodb bitnami/mongodb --set mongodbDatabase=go-web-app,mongodbUsername=zdravko,mongodbPassword=pass
+
+# removes previous image, builds new image and pushes it to docker hub
+docker image rm -f zdravkogyurov/go-web-app &&
+docker build -t zdravkogyurov/go-web-app:1.0.0 . &&
+docker push zdravkogyurov/go-web-app:1.0.0
+
+# redeploys go-web-app
+kubectl delete -f deployment.yaml &&
+kubectl apply -f deployment.yaml

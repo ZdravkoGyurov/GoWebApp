@@ -28,6 +28,7 @@ func NewNote(title, body string, modifiedOn time.Time) Note {
 func InsertNote(collection *mongo.Collection, n Note) error {
 	insertResult, err := collection.InsertOne(context.TODO(), n)
 	if err != nil {
+		log.Println(err)
 		return errors.New("An error occured while inserting note")
 	}
 
@@ -45,6 +46,7 @@ func FindNoteByTitle(collection *mongo.Collection, title string) (*Note, error) 
 	}
 
 	if err := collection.FindOne(context.TODO(), filter).Decode(&note); err != nil {
+		log.Println(err)
 		return nil, errors.New("An error occured while finding note by title: " + title)
 	}
 
@@ -59,6 +61,7 @@ func FindNotes(collection *mongo.Collection) ([]Note, error) {
 
 	cur, err := collection.Find(context.TODO(), bson.D{{}}, findOptions)
 	if err != nil {
+		log.Println(err)
 		return nil, errors.New("An error occured while finding notes")
 	}
 
@@ -66,6 +69,7 @@ func FindNotes(collection *mongo.Collection) ([]Note, error) {
 		var elem Note
 
 		if err := cur.Decode(&elem); err != nil {
+			log.Println(err)
 			return nil, errors.New("An error occured while decoding a note")
 		}
 
@@ -99,6 +103,7 @@ func UpdateNoteByTitle(collection *mongo.Collection, title string, n Note) error
 
 	updateResult, err := collection.UpdateOne(context.TODO(), filter, update)
 	if err != nil {
+		log.Println(err)
 		return errors.New("An error occured while updating note with title: " + title)
 	}
 
@@ -116,6 +121,7 @@ func DeleteNoteByTitle(collection *mongo.Collection, title string) error {
 
 	deleteResult, err := collection.DeleteOne(context.TODO(), filter)
 	if err != nil || deleteResult.DeletedCount == 0 {
+		log.Println(err)
 		return errors.New("An error occured while deleting note with title: " + title)
 	}
 

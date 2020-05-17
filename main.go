@@ -19,9 +19,9 @@ func main() {
 	client := db.Connect()
 	defer db.Disconnect(client)
 
-	collection := client.Database("test").Collection("notes")
+	notesCollection := client.Database("go-web-app").Collection("notes")
 
-	handleRoutes(collection)
+	handleRoutes(notesCollection)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
