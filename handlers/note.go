@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ZdravkoGyurov/go-web-app/db/models"
+	"github.com/gorilla/sessions"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -92,8 +93,14 @@ func getNotes(collection *mongo.Collection, w http.ResponseWriter) {
 }
 
 // HandleNote handles GET, POST, PUT and DELETE requests to /note
-func HandleNote(collection *mongo.Collection) http.HandlerFunc {
+func HandleNote(collection *mongo.Collection, store *sessions.CookieStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		session, err := validateUser(w, r, store)
+		if err != nil {
+			http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		if r.URL.Path != "/note" {
 			http.Error(w, "404 not found.", http.StatusNotFound)
 			return
@@ -101,6 +108,10 @@ func HandleNote(collection *mongo.Collection) http.HandlerFunc {
 
 		switch r.Method {
 		case "GET":
+			email := session.Values["email"]
+			name := session.Values["name"]
+			fmt.Fprintf(w, "Hello, %s(%s)\n", name, email)
+
 			getNote(collection, w, r)
 		case "POST":
 			postNote(collection, w, r)
@@ -115,8 +126,18 @@ func HandleNote(collection *mongo.Collection) http.HandlerFunc {
 }
 
 // HandleNotes handles GET request to /notes
-func HandleNotes(collection *mongo.Collection) http.HandlerFunc {
+func HandleNotes(collection *mongo.Collection, store *sessions.CookieStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		session, err := validateUser(w, r, store)
+		if err != nil {
+			http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		email := session.Values["email"]
+		name := session.Values["name"]
+		fmt.Fprintf(w, "Hello, %s(%s)\n", name, email)
+
 		if r.URL.Path != "/notes" {
 			http.Error(w, "404 not found.", http.StatusNotFound)
 			return
@@ -129,4 +150,18 @@ func HandleNotes(collection *mongo.Collection) http.HandlerFunc {
 			fmt.Fprintf(w, "Sorry, only GET method is supported.")
 		}
 	}
+}
+
+func validateUser(w http.ResponseWriter, r *http.Request, store *sessions.CookieStore) (*sessions.Session, error) {
+	sessionIDcookie, err := r.Cookie("session-id")
+	if err != nil {
+		return nil, fmt.Errorf("session ID missing: %s", err.Error())
+	}
+
+	session, err := store.Get(r, sessionIDcookie.Value)
+	if err != nil || len(session.Values) == 0 {
+		return nil, fmt.Errorf("could not get session: %s", err.Error())
+	}
+
+	return session, nil
 }
