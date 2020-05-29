@@ -23,10 +23,10 @@ type UserInfo struct {
 }
 
 var googleOauthConfig = &oauth2.Config{
-	RedirectURL:  "http://localhost:8080/auth/callback",
+	RedirectURL:  "http://localhost:8080/auth/google/callback",
 	ClientID:     os.Getenv("GOOGLE_OAUTH2_CLIENT_ID"),
 	ClientSecret: os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET"),
-	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid"},
+	Scopes:       []string{"https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile", "openid", "phone", "address"},
 	Endpoint:     google.Endpoint,
 }
 
@@ -166,7 +166,6 @@ func Logout(store *sessions.CookieStore) http.HandlerFunc {
 		}
 
 		deleteCookie(w, sessionIDcookie.Name)
-		// TODO: session is not getting deleted
 		session.Options.MaxAge = 1
 		err = session.Save(r, w)
 		if err != nil {

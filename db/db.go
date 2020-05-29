@@ -32,7 +32,7 @@ const (
 
 // Connect to MongoDB and return a client
 func Connect() *mongo.Client {
-	// TODO: clientOptions := options.Client().ApplyURI(fmt.Sprintf(MongoURI, DbUsername, DbPassword, DbHost, DbPort, DbDefault))
+	// clientOptions := options.Client().ApplyURI(fmt.Sprintf(MongoURI, DbUsername, DbPassword, DbHost, DbPort, DbDefault))
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

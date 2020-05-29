@@ -17,8 +17,10 @@ func handleRoutes(collection *mongo.Collection, store *sessions.CookieStore) {
 
 	http.Handle("/", http.FileServer(http.Dir("templates/")))
 
-	http.HandleFunc("/auth/login", handlers.OauthGoogleLogin(store))
-	http.HandleFunc("/auth/callback", handlers.OauthGoogleCallback(store))
+	http.HandleFunc("/auth/google/login", handlers.OauthGoogleLogin(store))
+	http.HandleFunc("/auth/google/callback", handlers.OauthGoogleCallback(store))
+	http.HandleFunc("/auth/facebook/login", handlers.OauthFacebookLogin(store))
+	http.HandleFunc("/auth/facebook/callback", handlers.OauthFacebookCallback(store))
 	http.HandleFunc("/auth/logout", handlers.Logout(store))
 }
 
@@ -26,7 +28,7 @@ func main() {
 	client := db.Connect()
 	defer db.Disconnect(client)
 
-	// TODO: notesCollection := client.Database("go-web-app").Collection("notes")
+	// notesCollection := client.Database("go-web-app").Collection("notes")
 	notesCollection := client.Database("test").Collection("notes")
 
 	store := sessions.NewCookieStore([]byte("SESSION_KEY"))

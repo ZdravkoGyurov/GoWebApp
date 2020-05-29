@@ -6,3 +6,4 @@ which context to use context.TODO()
 add FindNote() with filter
 fix cookies and sessions duration
 create isAuthorized() isNotAuthorized()
+fix logout
