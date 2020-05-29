@@ -22,9 +22,6 @@ func handleRoutes(collection *mongo.Collection, store *sessions.CookieStore) {
 	http.HandleFunc("/auth/logout", handlers.Logout(store))
 }
 
-// os.Setenv("GOOGLE_OAUTH2_CLIENT_ID", "874806098368-u04ecnakpci7olgqrihb6af1978jrr4h.apps.googleusercontent.com")
-// os.Setenv("GOOGLE_OAUTH2_CLIENT_SECRET", "DsqYhScPag1Y_NuvZI-laGwY")
-
 func main() {
 	client := db.Connect()
 	defer db.Disconnect(client)

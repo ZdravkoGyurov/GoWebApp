@@ -167,7 +167,7 @@ func Logout(store *sessions.CookieStore) http.HandlerFunc {
 
 		deleteCookie(w, sessionIDcookie.Name)
 		// TODO: session is not getting deleted
-		session.Options.MaxAge = -1
+		session.Options.MaxAge = 1
 		err = session.Save(r, w)
 		if err != nil {
 			fmt.Printf("could not delete session: %s", err.Error())
@@ -180,8 +180,9 @@ func Logout(store *sessions.CookieStore) http.HandlerFunc {
 
 func deleteCookie(w http.ResponseWriter, name string) {
 	c := &http.Cookie{
-		Name:    name,
-		Expires: time.Unix(0, 0),
+		Name:   name,
+		MaxAge: -1,
+		Path:   "/",
 	}
 	http.SetCookie(w, c)
 }

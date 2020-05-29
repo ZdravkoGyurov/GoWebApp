@@ -108,9 +108,10 @@ func HandleNote(collection *mongo.Collection, store *sessions.CookieStore) http.
 
 		switch r.Method {
 		case "GET":
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			email := session.Values["email"]
 			name := session.Values["name"]
-			fmt.Fprintf(w, "Hello, %s(%s)\n", name, email)
+			fmt.Fprintf(w, "Hello, %s(%s)<a href=\"/auth/logout\">Logout</a><br>", name, email)
 
 			getNote(collection, w, r)
 		case "POST":
@@ -134,9 +135,10 @@ func HandleNotes(collection *mongo.Collection, store *sessions.CookieStore) http
 			return
 		}
 
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		email := session.Values["email"]
 		name := session.Values["name"]
-		fmt.Fprintf(w, "Hello, %s(%s)\n", name, email)
+		fmt.Fprintf(w, "Hello, %s(%s)<a href=\"/auth/logout\">Logout</a><br>", name, email)
 
 		if r.URL.Path != "/notes" {
 			http.Error(w, "404 not found.", http.StatusNotFound)
